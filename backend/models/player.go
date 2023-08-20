@@ -79,6 +79,20 @@ func GetAllHittingPlayers() ([]HittingPlayer, error) {
 	return players, nil
 }
 
+func GetHittingPlayer(id string) (HittingPlayer, error) {
+    col := db.GetHittingPlayerCollection()
+    var player HittingPlayer
+    objID, err := primitive.ObjectIDFromHex(id)
+    if err != nil {
+        return player, err
+    }
+    err = col.FindOne(context.Background(), bson.M{"_id": objID}).Decode(&player)
+    if err != nil {
+        return player, err
+    }
+    return player, nil
+}
+
 func GetHittingPlayerByName(name string) (HittingPlayer, error) {
 	col := db.GetHittingPlayerCollection()
 	var player HittingPlayer
@@ -155,6 +169,20 @@ func GetAllPitchingPlayers() ([]PitchingPlayer, error) {
 		players = append(players, player)
 	}
 	return players, nil
+}
+
+func GetPitchingPlayer(id string) (PitchingPlayer, error) {
+    col := db.GetPitchingPlayerCollection()
+    var player PitchingPlayer
+    objID, err := primitive.ObjectIDFromHex(id)
+    if err != nil {
+        return player, err
+    }
+    err = col.FindOne(context.Background(), bson.M{"_id": objID}).Decode(&player)
+    if err != nil {
+        return player, err
+    }
+    return player, nil
 }
 
 func GetPitchingPlayerByName(name string) (PitchingPlayer, error) {

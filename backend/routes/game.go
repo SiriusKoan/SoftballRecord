@@ -75,10 +75,21 @@ func UpdateRecordsRoutes(c *gin.Context) {
 	}
 }
 
+func SaveGameRoutes(c *gin.Context) {
+    id := c.Param("id")
+    err := models.SaveGame(id)
+    if err != nil {
+        c.JSON(500, gin.H{"result": "error", "message": err.Error()})
+    } else {
+        c.JSON(200, gin.H{"result": "success", "message": "Game saved"})
+    }
+}
+
 func InitGameRoutes(router *gin.RouterGroup) {
 	router.POST("/game", CreateGameRoutes)
 	router.GET("/game/:id", GetGameRoutes)
 	router.GET("/games", GetAllGamesRoutes)
 	router.POST("/game/:id/record", AddRecordRoutes)
 	router.PUT("/game/:id/record", UpdateRecordsRoutes)
+    router.POST("/game/:id/save", SaveGameRoutes)
 }

@@ -11,6 +11,7 @@ import (
 
 type Record struct {
 	Team     string `bson:"team" json:"team"`
+    Inning   int    `bson:"inning" json:"inning"`
 	Player   string `bson:"player" json:"player"` // objectid
 	Number   int    `bson:"number" json:"number"`
 	Order    int    `bson:"order" json:"order"`
@@ -116,3 +117,55 @@ func UpdateRecords(gameID string, records []Record) error {
 	}
 	return nil
 }
+
+func SaveGame(gameID string) {
+    game, err := GetGame(gameID)
+    if err != nil {
+        return
+    }
+    player_recorded := make(map[string]bool)
+    for _, record := range game.Records {
+        player, err := GetHittingPlayerByName(record.Player)
+        if err != nil {
+            continue
+        }
+        data := bson.M{}
+        if _, ok := player_recorded[player.Name]; !ok {
+            player_recorded[player.Name] = true
+            data["Games"] = player.Games + 1
+        }
+        // result
+        if record.Result == "1B" {
+            data["AB"] = player.AB + 1
+            data["Hits"] = player.Hits + 1
+        } else if record.Result == "2B" {
+            data["AB"] = player.AB + 1
+            data["Hits"] = player.Hits + 1
+            data["Doubles"] = player.Doubles + 1
+        } else if record.Result == "3B" {
+            data["AB"] = player.AB + 1
+            data["Hits"] = player.Hits + 1
+            data["Triples"] = player.Triples + 1
+        } else if record.Result == "HR" {
+            data["AB"] = player.AB + 1
+            data["Hits"] = player.Hits + 1
+            data["HR"] = player.HR + 1
+        } else if record.Result == "BB" {
+            data["BB"] = player.BB + 1
+        } else if record.Result == "K" {
+            data["AB"] = player.AB + 1
+            data["SO"] = player.SO + 1
+        } else if record.Result == "SF" {
+            data["SF"] = player.SF + 1
+        } else if record.Result == "FO" || record.Result == "GO" || record.Result == "DP" {
+            data["AB"] = player.AB + 1
+        } else if record.Result == "FC" || record.Result == "E" {
+            // do nothing
+        }
+        // rbi
+        data["RBI"] = player.RBI + record.RBI
+        UpdateHittingPlayer(data)
+    }
+}
+
+
